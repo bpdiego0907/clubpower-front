@@ -39,251 +39,317 @@ export default function PuntosPage({
   }, [dni]);
 
   return (
-    <main
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        padding: "8px",
-        marginTop: 0,
-      }}
-    >
-      {/* ✅ Botón fijo arriba a la izquierda */}
+    <>
+      {/* Botón fijo arriba-izquierda */}
       <button
+        className="back"
         onClick={() => router.push("/")}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.color = "#084298";
-          e.currentTarget.style.textDecoration = "underline";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.color = "#0a58ca";
-          e.currentTarget.style.textDecoration = "none";
-        }}
-        style={{
-          position: "fixed",
-          top: 20,
-          left: 24,
-          background: "none",
-          border: "none",
-          color: "#0a58ca",
-          fontWeight: 600,
-          cursor: "pointer",
-          fontSize: 15,
-          display: "flex",
-          alignItems: "center",
-          gap: 4,
-          transition: "all 0.2s ease",
-          zIndex: 1000, // para que quede sobre todo
-        }}
+        aria-label="Volver a la pantalla anterior"
       >
         ← Atrás
       </button>
 
-      <div
-        style={{
-          background: "#f8f9fa",
-          borderRadius: 12,
-          boxShadow: "0 2px 5px rgba(0,0,0,0.06)",
-          padding: "20px 16px",
-          maxWidth: 720,
-          width: "100%",
-          textAlign: "center",
-        }}
-      >
-        <h2
-          style={{
-            color: "#0a58ca",
-            marginBottom: 12,
-            fontSize: 20,
-            fontWeight: 600,
-          }}
-        >
-          🎁 Hola, revisa tus puntos
-        </h2>
+      <main className="wrap">
+        <div className="panel">
+          <h2 className="title">🎁 Hola, revisa tus puntos</h2>
 
-        {loading && <div style={{ fontSize: 15 }}>Cargando…</div>}
-        {err && <div style={{ color: "crimson", fontSize: 15 }}>Error: {err}</div>}
+          {loading && <div className="small">Cargando…</div>}
+          {err && <div className="error">Error: {err}</div>}
 
-        {!loading && !err && data && "dni" in data && (
-          <>
-            <div style={{ display: "grid", gap: 12, justifyItems: "center" }}>
-              <div
-                style={{
-                  fontSize: 15,
-                  background: "#fff",
-                  border: "1px solid #ddd",
-                  borderRadius: 8,
-                  padding: "6px 12px",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-                  width: "fit-content",
-                }}
-              >
-                <b>DNI:</b> {data.dni}
+          {!loading && !err && data && "dni" in data && (
+            <>
+              <div className="grid">
+                {/* Badge DNI */}
+                <div className="dni">
+                  <b>DNI:</b> {data.dni}
+                </div>
+
+                {/* Cards */}
+                <div className="cards">
+                  <Card
+                    title="Puntos para ganar la Canasta Navideña"
+                    value={data.canasta}
+                  />
+                  <Card
+                    title="Puntos para ganar el Vale de Pavo"
+                    value={data.pavo}
+                  />
+                </div>
               </div>
 
-              <div
-                style={{
-                  display: "grid",
-                  gap: 14,
-                  width: "100%",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-                  maxWidth: 640,
-                }}
-              >
-                <Card
-                  title="Puntos para ganar la Canasta Navideña"
-                  value={data.canasta}
-                />
-                <Card
-                  title="Puntos para ganar el Vale de Pavo"
-                  value={data.pavo}
-                />
+              {/* Tabla de puntajes */}
+              <div className="tableWrap" aria-label="Tabla de puntaje por producto">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>PRODUCTO</th>
+                      <th>PP</th>
+                      <th>OSS</th>
+                      <th>PORTA PP</th>
+                      <th>ALTA POST / OPP</th>
+                      <th>UR</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th>PUNTAJE</th>
+                      <td>1</td>
+                      <td>3</td>
+                      <td>2</td>
+                      <td>2</td>
+                      <td>+0.5</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            </div>
+            </>
+          )}
 
-            <div style={{ marginTop: 16 }}>
-              <ScoringTable />
-            </div>
-          </>
-        )}
+          {!loading && !err && data && "detail" in data && (
+            <div className="small">{(data as any).detail}</div>
+          )}
+        </div>
+      </main>
 
-        {!loading && !err && data && "detail" in data && (
-          <div style={{ color: "#444", fontSize: 15 }}>{(data as any).detail}</div>
-        )}
-      </div>
-    </main>
+      <style jsx>{`
+        /* Layout base (desktop/tablet) */
+        .wrap {
+          display: flex;
+          justify-content: center;
+          padding: 8px;
+          margin-top: 0;
+        }
+        .panel {
+          background: #f8f9fa;
+          border-radius: 12px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+          padding: 20px 16px;
+          max-width: 720px;
+          width: 100%;
+          text-align: center;
+        }
+        .title {
+          color: #0a58ca;
+          margin: 0 0 12px;
+          font-size: 20px;
+          font-weight: 600;
+        }
+        .small {
+          font-size: 15px;
+        }
+        .error {
+          color: crimson;
+          font-size: 15px;
+        }
+        .grid {
+          display: grid;
+          gap: 12px;
+          justify-items: center;
+        }
+        .dni {
+          font-size: 15px;
+          background: #fff;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          padding: 6px 12px;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+          width: fit-content;
+        }
+        .cards {
+          display: grid;
+          gap: 14px;
+          width: 100%;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          max-width: 640px;
+        }
+
+        .tableWrap {
+          margin-top: 16px;
+          margin-left: auto;
+          margin-right: auto;
+          max-width: 640px;
+          width: 100%;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          border-radius: 10px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+        .table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 13px;
+        }
+        thead th {
+          text-align: left;
+          padding: 10px 12px;
+          background: #f3f4f6;
+          border-bottom: 1px solid #e5e7eb;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+        thead th:not(:first-child) {
+          text-align: center;
+          padding: 10px 8px;
+        }
+        tbody th {
+          text-align: left;
+          padding: 10px 12px;
+          border-top: 1px solid #e5e7eb;
+          font-weight: 600;
+          background: #fafafa;
+          white-space: nowrap;
+        }
+        tbody td {
+          text-align: center;
+          padding: 10px 8px;
+          border-top: 1px solid #e5e7eb;
+          color: #0a58ca;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+
+        /* Botón volver */
+        .back {
+          position: fixed;
+          top: 14px;
+          left: 14px;
+          background: transparent;
+          color: #0a58ca;
+          border: none;
+          font-weight: 600;
+          cursor: pointer;
+          padding: 8px 10px;
+          border-radius: 8px;
+          transition: transform 0.06s ease, background 0.12s ease, color 0.12s ease;
+          z-index: 1000;
+          font-size: 15px;
+        }
+        .back:hover {
+          background: #e9f1ff;
+          color: #084298;
+        }
+        .back:active {
+          transform: translateY(1px);
+        }
+
+        /* === Breakpoint: tablets medianas (≤768px) === */
+        @media (max-width: 768px) {
+          .panel {
+            padding: 16px 12px;
+          }
+          .title {
+            font-size: 18px;
+          }
+          .cards {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            max-width: 100%;
+          }
+        }
+
+        /* === Breakpoint: móviles (≤480px) === */
+        @media (max-width: 480px) {
+          .wrap {
+            padding: 6px;
+          }
+          .panel {
+            padding: 14px 10px;
+            border-radius: 10px;
+          }
+          .title {
+            font-size: 17px;
+            margin-bottom: 10px;
+          }
+          .small,
+          .error {
+            font-size: 14px;
+          }
+          .dni {
+            font-size: 14px;
+            padding: 6px 10px;
+          }
+          .cards {
+            grid-template-columns: 1fr; /* ✅ una sola columna en móvil */
+            gap: 10px;
+          }
+          .tableWrap {
+            border-radius: 8px;
+          }
+          thead th,
+          tbody th,
+          tbody td {
+            padding: 8px 10px;
+            font-size: 12.5px;
+          }
+          .back {
+            top: 10px;
+            left: 10px;
+            font-size: 14px;    /* más pequeño */
+            padding: 8px 10px;  /* área táctil suficiente */
+          }
+        }
+      `}</style>
+    </>
   );
 }
 
-/** Card compacta con alturas normalizadas */
+/* --- Card compacta y responsive --- */
 function Card({ title, value }: { title: string; value: number }) {
   return (
-    <div
-      style={{
-        background: "#fff",
-        border: "1px solid #ddd",
-        borderRadius: 10,
-        padding: "14px 12px",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        minHeight: 130,
-      }}
-    >
-      <div
-        style={{
-          fontSize: 15,
-          color: "#444",
-          textAlign: "center",
-          lineHeight: 1.25,
-          minHeight: 38,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 6,
-          padding: "0 6px",
-        }}
-      >
-        {title}
+    <>
+      <div className="card">
+        <div className="cardTitle">{title}</div>
+        <div className="cardValue">{value}</div>
       </div>
 
-      <div
-        style={{
-          fontSize: 26,
-          color: "#0a58ca",
-          fontWeight: 700,
-          marginTop: 4,
-        }}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
+      <style jsx>{`
+        .card {
+          background: #fff;
+          border: 1px solid #ddd;
+          border-radius: 10px;
+          padding: 14px 12px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          min-height: 128px;
+        }
+        .cardTitle {
+          font-size: 15px;
+          color: #444;
+          text-align: center;
+          line-height: 1.25;
+          min-height: 38px; /* iguala alturas para alinear valores */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 6px;
+          padding: 0 6px;
+        }
+        .cardValue {
+          font-size: 26px;
+          color: #0a58ca;
+          font-weight: 700;
+          margin-top: 4px;
+        }
 
-/** Tabla de puntajes */
-function ScoringTable() {
-  return (
-    <div
-      aria-label="Tabla de puntaje por producto"
-      style={{
-        margin: "0 auto",
-        maxWidth: 640,
-        width: "100%",
-        overflowX: "auto",
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: 10,
-        boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
-      }}
-    >
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          fontSize: 13,
-        }}
-      >
-        <thead>
-          <tr>
-            <th
-              style={{
-                textAlign: "left",
-                padding: "10px 12px",
-                background: "#f3f4f6",
-                borderBottom: "1px solid #e5e7eb",
-                fontWeight: 700,
-              }}
-            >
-              PRODUCTO
-            </th>
-            {["PP", "OSS", "PORTA PP", "ALTA POST / OPP", "UR"].map((h) => (
-              <th
-                key={h}
-                style={{
-                  textAlign: "center",
-                  padding: "10px 8px",
-                  background: "#f3f4f6",
-                  borderBottom: "1px solid #e5e7eb",
-                  fontWeight: 700,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th
-              style={{
-                textAlign: "left",
-                padding: "10px 12px",
-                borderTop: "1px solid #e5e7eb",
-                fontWeight: 600,
-                background: "#fafafa",
-              }}
-            >
-              PUNTAJE
-            </th>
-            {[1, 3, 2, 2, "+0.5"].map((v, i) => (
-              <td
-                key={i}
-                style={{
-                  textAlign: "center",
-                  padding: "10px 8px",
-                  borderTop: "1px solid #e5e7eb",
-                  color: "#0a58ca",
-                  fontWeight: 700,
-                }}
-              >
-                {v}
-              </td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
-    </div>
+        /* móvil */
+        @media (max-width: 480px) {
+          .card {
+            padding: 12px 10px;
+            min-height: 116px;
+          }
+          .cardTitle {
+            font-size: 14px;
+            min-height: 34px;
+            margin-bottom: 4px;
+          }
+          .cardValue {
+            font-size: 24px;
+          }
+        }
+      `}</style>
+    </>
   );
 }
