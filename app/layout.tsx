@@ -7,7 +7,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div style={{
           maxWidth: 880,
           margin: "0 auto",
-          padding: "24px 16px",
+          padding: "12px 16px",
           textAlign: "center"
         }}>
           {/* ✅ Logo superior */}
@@ -15,9 +15,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             src="/logo.png" 
             alt="Logo Club Power"
             style={{
-              width: 600,
+              width: 400,
               height: "auto",
-              marginBottom: 12,
+              marginBottom: 6,
               display: "block",
               marginLeft: "auto",
               marginRight: "auto"
