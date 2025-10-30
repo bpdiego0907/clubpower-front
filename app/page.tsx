@@ -18,44 +18,89 @@ export default function Home() {
   };
 
   return (
-    <main>
-      <h1 style={{ color: "#0a58ca", marginBottom: 8 }}>CLUB POWER</h1>
-      <p style={{ margin: "4px 0 24px" }}>Del 01 de nov al 21 de dic</p>
+    <main
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        padding: "16px",
+        marginTop: 0,
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 880,
+          background: "#ffffff", // Fondo blanco limpio
+          borderRadius: 16,
+          padding: "32px 24px",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+        }}
+      >
+        <div style={{ maxWidth: 520, margin: "0 auto", textAlign: "center" }}>
+          <h1 style={{ color: "#0a58ca", marginBottom: 8 }}>
+            Del 01 de nov al 21 de dic
+          </h1>
+          <h2 style={{ marginBottom: 8 }}>🧭 Averigua aquí tus puntos:</h2>
 
-      <h2 style={{ marginBottom: 8 }}>🧭 Averigua aquí tus puntos:</h2>
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12, maxWidth: 420 }}>
-        <label>
-          N° documento:
-          <input
-            value={dni}
-            onChange={(e) => setDni(e.target.value)}
-            placeholder="Ingresa tu DNI"
-            inputMode="numeric"
-            pattern="\d*"
-            style={{ width: "100%", padding: 10, borderRadius: 8, border: "1px solid #ccc" }}
-          />
-        </label>
-        {err && <div style={{ color: "crimson" }}>{err}</div>}
-        <button
-          type="submit"
-          style={{
-            background: "#0a58ca",
-            color: "white",
-            padding: "10px 14px",
-            borderRadius: 8,
-            border: "none",
-            cursor: "pointer",
-            width: 160
-          }}
-        >
-          Consultar
-        </button>
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              display: "grid",
+              gap: 12,
+              justifyItems: "center",
+              marginTop: 12,
+            }}
+          >
+            <label style={{ width: "100%", textAlign: "left" }}>
+              N° documento:
+              <input
+                value={dni}
+                onChange={(e) => setDni(e.target.value)}
+                placeholder="Ingresa tu DNI"
+                inputMode="numeric"
+                pattern="\d*"
+                style={{
+                  width: "100%",
+                  padding: 10,
+                  borderRadius: 8,
+                  border: "1px solid #ccc",
+                  marginTop: 4,
+                }}
+              />
+            </label>
 
-        <div style={{ fontSize: 12, color: "#555", marginTop: 12 }}>
-          *Si eres PDV/PDV Plus, ingresar documento del líder.<br/>
-          *Si eres Multimarca/ HC EMO, ingresar documento del login.
+            {err && <div style={{ color: "crimson" }}>{err}</div>}
+
+            <button
+              type="submit"
+              style={{
+                background: "#0a58ca",
+                color: "white",
+                padding: "10px 14px",
+                borderRadius: 8,
+                border: "none",
+                cursor: "pointer",
+                width: 160,
+                fontWeight: "bold",
+              }}
+            >
+              Consultar
+            </button>
+
+            <div
+              style={{
+                fontSize: 12,
+                color: "#555",
+                marginTop: 12,
+                textAlign: "left",
+              }}
+            >
+              *Si eres PDV/PDV Plus, ingresar documento del líder.<br />
+              *Si eres Multimarca/HC EMO, ingresar documento del login.
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </main>
   );
 }
