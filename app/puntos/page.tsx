@@ -26,11 +26,21 @@ export default function PuntosPage({
     const run = async () => {
       try {
         const r = await fetch(`${API_BASE}/premios/${dni}`, { cache: "no-store" });
+
+        // 🧩 Si la API devuelve 404, mostramos mensaje personalizado
+        if (r.status === 404) {
+          setErr("No se encontró el número de documento ingresado.");
+          setLoading(false);
+          return;
+        }
+
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
+
         const j = (await r.json()) as Res;
         setData(j);
       } catch (e: any) {
-        setErr(e.message ?? "Error consultando la API");
+        // 🔧 En caso de error de red u otro código no controlado
+        setErr("Hubo un problema al consultar la información. Inténtalo nuevamente.");
       } finally {
         setLoading(false);
       }
@@ -54,7 +64,13 @@ export default function PuntosPage({
           <h2 className="title">🎁 Hola, revisa tus puntos</h2>
 
           {loading && <div className="small">Cargando…</div>}
-          {err && <div className="error">Error: {err}</div>}
+
+          {/* 🔧 Mensaje de error mejorado */}
+          {err && (
+            <div className="error">
+              ❌ {err}
+            </div>
+          )}
 
           {!loading && !err && data && "dni" in data && (
             <>
@@ -112,7 +128,6 @@ export default function PuntosPage({
       </main>
 
       <style jsx>{`
-        /* Layout base (desktop/tablet) */
         .wrap {
           display: flex;
           justify-content: center;
@@ -138,8 +153,15 @@ export default function PuntosPage({
           font-size: 15px;
         }
         .error {
-          color: crimson;
+          color: #a94442;
+          background: #f8d7da;
+          border: 1px solid #f5c2c7;
+          border-radius: 8px;
+          padding: 10px 14px;
+          margin-top: 12px;
           font-size: 15px;
+          font-weight: 500;
+          text-align: center;
         }
         .grid {
           display: grid;
@@ -162,7 +184,6 @@ export default function PuntosPage({
           grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
           max-width: 640px;
         }
-
         .tableWrap {
           margin-top: 16px;
           margin-left: auto;
@@ -170,7 +191,6 @@ export default function PuntosPage({
           max-width: 640px;
           width: 100%;
           overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
           background: #fff;
           border: 1px solid #e5e7eb;
           border-radius: 10px;
@@ -199,7 +219,6 @@ export default function PuntosPage({
           border-top: 1px solid #e5e7eb;
           font-weight: 600;
           background: #fafafa;
-          white-space: nowrap;
         }
         tbody td {
           text-align: center;
@@ -207,10 +226,7 @@ export default function PuntosPage({
           border-top: 1px solid #e5e7eb;
           color: #0a58ca;
           font-weight: 700;
-          white-space: nowrap;
         }
-
-        /* Botón volver */
         .back {
           position: fixed;
           top: 14px;
@@ -233,22 +249,6 @@ export default function PuntosPage({
         .back:active {
           transform: translateY(1px);
         }
-
-        /* === Breakpoint: tablets medianas (≤768px) === */
-        @media (max-width: 768px) {
-          .panel {
-            padding: 16px 12px;
-          }
-          .title {
-            font-size: 18px;
-          }
-          .cards {
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            max-width: 100%;
-          }
-        }
-
-        /* === Breakpoint: móviles (≤480px) === */
         @media (max-width: 480px) {
           .wrap {
             padding: 6px;
@@ -261,32 +261,9 @@ export default function PuntosPage({
             font-size: 17px;
             margin-bottom: 10px;
           }
-          .small,
           .error {
             font-size: 14px;
-          }
-          .dni {
-            font-size: 14px;
-            padding: 6px 10px;
-          }
-          .cards {
-            grid-template-columns: 1fr; /* ✅ una sola columna en móvil */
-            gap: 10px;
-          }
-          .tableWrap {
-            border-radius: 8px;
-          }
-          thead th,
-          tbody th,
-          tbody td {
             padding: 8px 10px;
-            font-size: 12.5px;
-          }
-          .back {
-            top: 10px;
-            left: 10px;
-            font-size: 14px;    /* más pequeño */
-            padding: 8px 10px;  /* área táctil suficiente */
           }
         }
       `}</style>
@@ -294,7 +271,7 @@ export default function PuntosPage({
   );
 }
 
-/* --- Card compacta y responsive --- */
+/* --- Card --- */
 function Card({ title, value }: { title: string; value: number }) {
   return (
     <>
@@ -320,7 +297,7 @@ function Card({ title, value }: { title: string; value: number }) {
           color: #444;
           text-align: center;
           line-height: 1.25;
-          min-height: 38px; /* iguala alturas para alinear valores */
+          min-height: 38px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -333,8 +310,6 @@ function Card({ title, value }: { title: string; value: number }) {
           font-weight: 700;
           margin-top: 4px;
         }
-
-        /* móvil */
         @media (max-width: 480px) {
           .card {
             padding: 12px 10px;
@@ -343,7 +318,6 @@ function Card({ title, value }: { title: string; value: number }) {
           .cardTitle {
             font-size: 14px;
             min-height: 34px;
-            margin-bottom: 4px;
           }
           .cardValue {
             font-size: 24px;
