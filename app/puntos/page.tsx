@@ -1,8 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ProgressBar from "./ProgressBar";
 
-type Res = { dni: string; canasta: number; pavo: number } | { detail: string };
+type Res =
+  | {
+      dni: string;
+      canasta: number;
+      pavo: number;
+      puntos?: number; // 👈 Campos nuevos que vienen del backend
+      pv?: string;
+    }
+  | { detail: string };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
 
@@ -27,7 +36,6 @@ export default function PuntosPage({
       try {
         const r = await fetch(`${API_BASE}/premios/${dni}`, { cache: "no-store" });
 
-        // 🧩 Si la API devuelve 404, mostramos mensaje personalizado
         if (r.status === 404) {
           setErr("No se encontró el número de documento ingresado.");
           setLoading(false);
@@ -39,7 +47,6 @@ export default function PuntosPage({
         const j = (await r.json()) as Res;
         setData(j);
       } catch (e: any) {
-        // 🔧 En caso de error de red u otro código no controlado
         setErr("Hubo un problema al consultar la información. Inténtalo nuevamente.");
       } finally {
         setLoading(false);
@@ -65,22 +72,15 @@ export default function PuntosPage({
 
           {loading && <div className="small">Cargando…</div>}
 
-          {/* 🔧 Mensaje de error mejorado */}
-          {err && (
-            <div className="error">
-              ❌ {err}
-            </div>
-          )}
+          {err && <div className="error">❌ {err}</div>}
 
           {!loading && !err && data && "dni" in data && (
             <>
               <div className="grid">
-                {/* Badge DNI */}
                 <div className="dni">
                   <b>DNI:</b> {data.dni}
                 </div>
 
-                {/* Cards */}
                 <div className="cards">
                   <Card
                     title="Puntos para ganar la Canasta Navideña"
@@ -91,6 +91,18 @@ export default function PuntosPage({
                     value={data.pavo}
                   />
                 </div>
+              </div>
+
+              {/* 🔹 Barra de progreso */}
+              <ProgressBar
+                puntos={(data as any).puntos ?? 0}
+                metaCanasta={data.canasta}
+                metaPavo={data.pavo}
+              />
+
+              {/* 🆕 Subtítulo antes de la tabla */}
+              <div className="subheadWrap">
+                <div className="subhead">Tabla de puntajes:</div>
               </div>
 
               {/* Tabla de puntajes */}
@@ -184,8 +196,22 @@ export default function PuntosPage({
           grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
           max-width: 640px;
         }
+
+        /* 🆕 Estilos del subtítulo */
+        .subheadWrap {
+          margin: 14px auto 6px;
+          max-width: 640px;
+          width: 100%;
+        }
+        .subhead {
+          text-align: left;
+          font-size: 15px;
+          font-weight: 700;
+          color: #1f2937;
+        }
+
         .tableWrap {
-          margin-top: 16px;
+          margin-top: 8px;
           margin-left: auto;
           margin-right: auto;
           max-width: 640px;
@@ -264,6 +290,9 @@ export default function PuntosPage({
           .error {
             font-size: 14px;
             padding: 8px 10px;
+          }
+          .subheadWrap {
+            margin-top: 12px;
           }
         }
       `}</style>
