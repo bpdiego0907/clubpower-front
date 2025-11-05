@@ -216,7 +216,17 @@ export default function PuntosPage({
           font-weight: 500;
           text-align: center;
         }
-        .grid { display: grid; gap: 12px; justify-items: center; }
+
+        /* === Contenedor cabecera === */
+        .grid {
+          display: grid;
+          gap: 12px;
+          justify-items: center;    /* centra horizontalmente los hijos */
+          align-content: start;
+          width: 100%;
+        }
+
+        /* === Pill DNI centrado === */
         .dni {
           font-size: 15px;
           background: #fff;
@@ -224,14 +234,21 @@ export default function PuntosPage({
           border-radius: 8px;
           padding: 6px 12px;
           box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-          width: fit-content;
+          width: max-content;
+          display: inline-flex;
+          align-items: center;
+          margin: 0 auto;           /* asegura centrado */
         }
+
+        /* === Cards: centradas; 2 col en desktop === */
         .cards {
           display: grid;
           gap: 14px;
           width: 100%;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
           max-width: 640px;
+          margin: 0 auto;
+          grid-template-columns: repeat(2, minmax(240px, 1fr));
+          justify-content: center;
         }
 
         .prizes {
@@ -339,18 +356,19 @@ export default function PuntosPage({
         .back:hover { background: #e9f1ff; color: #084298; }
         .back:active { transform: translateY(1px); }
 
+        /* === Responsive === */
+        @media (max-width: 640px) {
+          .cards { grid-template-columns: 1fr; gap: 12px; }
+        }
         @media (max-width: 480px) {
           .wrap { padding: 8px 6px; }
           .panel { padding: 14px 10px; border-radius: 10px; max-width: 100%; }
           .title { font-size: 18px; margin-bottom: 10px; }
           .dni { font-size: 14px; padding: 5px 10px; }
-          .cards { gap: 10px; }
-
           .prizes { gap: 12px; }
           .prize { padding: 8px 10px; min-width: 140px; }
           .prizeCap b { font-size: 12.5px; }
           .prizeCap span { font-size: 11.5px; }
-
           .error { font-size: 14px; padding: 8px 10px; }
           .tableWrap { margin-top: 10px; border-radius: 10px; }
           .subheadWrap { margin: 12px auto 4px; padding: 0 6px; }
@@ -399,10 +417,10 @@ function Card({
           min-height: 128px;
           transition: background-color .2s ease, border-color .2s ease;
         }
-        /* 🎨 estado “alcanzado” en naranja tenue */
+        /* 🎨 “alcanzado” en naranja tenue */
         .card.achieved {
-          background: #d3fcf9ff;       /* naranja muy suave */
-          border-color: #94e4f2ff;     /* naranja tenue (tailwind amber-300 aprox) */
+          background: #fff7ed;    /* naranja muy suave */
+          border-color: #fdba74;  /* naranja tenue */
         }
         .cardTitle {
           font-size: 15px;
