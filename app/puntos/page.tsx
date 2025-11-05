@@ -8,7 +8,7 @@ type Res =
       dni: string;
       canasta: number;
       pavo: number;
-      puntos?: number; // 👈 Campos nuevos que vienen del backend
+      puntos?: number; // 👈 viene del backend
       pv?: string;
     }
   | { detail: string };
@@ -275,24 +275,42 @@ export default function PuntosPage({
         .back:active {
           transform: translateY(1px);
         }
+
+        /* ====== Ajustes responsive para móvil (alineado con ProgressBar) ====== */
         @media (max-width: 480px) {
           .wrap {
-            padding: 6px;
+            padding: 8px 6px;
           }
           .panel {
             padding: 14px 10px;
             border-radius: 10px;
+            max-width: 100%;
           }
           .title {
-            font-size: 17px;
+            font-size: 18px;
             margin-bottom: 10px;
+          }
+          .dni {
+            font-size: 14px;
+            padding: 5px 10px;
+          }
+          .cards {
+            gap: 10px;
           }
           .error {
             font-size: 14px;
             padding: 8px 10px;
           }
+          .tableWrap {
+            margin-top: 10px;
+            border-radius: 10px;
+          }
           .subheadWrap {
-            margin-top: 12px;
+            margin: 12px auto 4px;
+            padding: 0 6px;
+          }
+          .subhead {
+            font-size: 14px;
           }
         }
       `}</style>

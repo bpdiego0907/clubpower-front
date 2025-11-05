@@ -182,16 +182,42 @@ export default function ProgressBar({
           color: #374151;
         }
 
+        /* ====== Ajustes responsive para móvil ====== */
         @media (max-width: 480px) {
-          .progressWrap { margin-top: 150px; }
-          .milestone { width: 120px; top: -124px; }
-          .icon { width: 58px !important; height: 58px !important; }
-          .badge b { font-size: 11px; }
-          .badge span { font-size: 10px; }
-          .headBubble { top: -26px; font-size: 11px; left: -4px; }
-          .guide { top: -106px; height: 106px; }
+          .progressWrap {
+            margin-top: 135px;   /* baja un poco respecto al desktop */
+            padding: 0 8px;      /* respiración lateral */
+          }
+
+          /* hitos más compactos */
+          .milestone { width: 112px; top: -118px; }
+          .icon { width: 54px !important; height: 54px !important; }
+          .badge b { font-size: 10.5px; }
+          .badge span { font-size: 9.5px; }
+
+          /* guía acompaña la nueva altura */
+          .guide { top: -102px; height: 102px; }
+
+          /* burbuja dentro del contenedor y más compacta */
+          .headBubble { top: -24px; left: 6px; font-size: 11px; padding: 1px 7px; }
+
+          /* barra ligeramente más alta */
+          .progressBar { height: 24px; border-radius: 14px; }
+
+          .pointsBlock { margin-top: 10px; }
           .pointsHeadline { font-size: 18px; }
           .pointsSub { font-size: 13px; }
+        }
+
+        /* teléfonos muy estrechos (320–360px) */
+        @media (max-width: 360px) {
+          .progressWrap { margin-top: 128px; padding: 0 6px; }
+          .milestone { top: -114px; width: 108px; }
+          .icon { width: 50px !important; height: 50px !important; }
+          .guide { top: -98px; height: 98px; }
+          .headBubble { left: 4px; font-size: 10.5px; }
+          .pointsHeadline { font-size: 17px; }
+          .pointsSub { font-size: 12.5px; }
         }
       `}</style>
     </div>
