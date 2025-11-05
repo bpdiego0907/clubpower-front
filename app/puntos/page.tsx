@@ -1,14 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import ProgressBar from "./ProgressBar";
 
 type Res =
   | {
       dni: string;
-      canasta: number;
-      pavo: number;
-      puntos?: number; // 👈 viene del backend
+      canasta: number; // meta 1er premio
+      pavo: number;    // meta 2do premio
+      puntos?: number; // avance actual
       pv?: string;
     }
   | { detail: string };
@@ -41,7 +42,6 @@ export default function PuntosPage({
           setLoading(false);
           return;
         }
-
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
 
         const j = (await r.json()) as Res;
@@ -71,65 +71,108 @@ export default function PuntosPage({
           <h2 className="title">🎁 Hola, revisa tus puntos</h2>
 
           {loading && <div className="small">Cargando…</div>}
-
           {err && <div className="error">❌ {err}</div>}
 
           {!loading && !err && data && "dni" in data && (
             <>
-              <div className="grid">
-                <div className="dni">
-                  <b>DNI:</b> {data.dni}
-                </div>
+              {(() => {
+                const puntos = (data as any).puntos ?? 0;
+                const alcanzadoCan = puntos >= data.canasta;
+                const alcanzadoPavo = puntos >= data.pavo;
 
-                <div className="cards">
-                  <Card
-                    title="Puntos para ganar la Canasta Navideña"
-                    value={data.canasta}
-                  />
-                  <Card
-                    title="Puntos para ganar el Vale de Pavo"
-                    value={data.pavo}
-                  />
-                </div>
-              </div>
+                return (
+                  <>
+                    <div className="grid">
+                      <div className="dni">
+                        <b>DNI:</b> {data.dni}
+                      </div>
 
-              {/* 🔹 Barra de progreso */}
-              <ProgressBar
-                puntos={(data as any).puntos ?? 0}
-                metaCanasta={data.canasta}
-                metaPavo={data.pavo}
-              />
+                      <div className="cards">
+                        <Card
+                          title="Puntos para ganar la Canasta Navideña"
+                          value={data.canasta}
+                          achieved={alcanzadoCan}
+                        />
+                        <Card
+                          title="Puntos para ganar el Vale de Pavo"
+                          value={data.pavo}
+                          achieved={alcanzadoPavo}
+                        />
+                      </div>
+                    </div>
 
-              {/* 🆕 Subtítulo antes de la tabla */}
-              <div className="subheadWrap">
-                <div className="subhead">Tabla de puntajes:</div>
-              </div>
+                    {/* Barra de progreso */}
+                    <ProgressBar
+                      puntos={puntos}
+                      metaCanasta={data.canasta}
+                      metaPavo={data.pavo}
+                    />
 
-              {/* Tabla de puntajes */}
-              <div className="tableWrap" aria-label="Tabla de puntaje por producto">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>PRODUCTO</th>
-                      <th>PP</th>
-                      <th>OSS</th>
-                      <th>PORTA PP</th>
-                      <th>ALTA POST / OPP</th>
-                      <th>UR</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <th>PUNTAJE</th>
-                      <td>1</td>
-                      <td>3</td>
-                      <td>2</td>
-                      <td>2</td>
-                      <td>+0.5</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                    {/* Faja neutral de premios */}
+                    <section className="prizes" aria-label="Premios de referencia">
+                      <div className="prize">
+                        <Image
+                          src="/canasta.jpg"
+                          alt="Canasta Navideña"
+                          width={88}
+                          height={88}
+                          className="prizeImg"
+                          priority
+                        />
+                        <div className="prizeCap">
+                          <b>Canasta</b>
+                          <span>S/50–S/100</span>
+                        </div>
+                      </div>
+                      <div className="prize">
+                        <Image
+                          src="/pavo.png"
+                          alt="Vale de pavo 6 kg"
+                          width={92}
+                          height={92}
+                          className="prizeImg"
+                          priority
+                        />
+                        <div className="prizeCap">
+                          <b>Pavo 6 kg</b>
+                          <span>S/100</span>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Subtítulo tabla */}
+                    <div className="subheadWrap">
+                      <div className="subhead">Tabla de puntajes:</div>
+                    </div>
+
+                    {/* Tabla */}
+                    <div className="tableWrap" aria-label="Tabla de puntaje por producto">
+                      <table className="table">
+                        <thead>
+                          <tr>
+                            <th>PRODUCTO</th>
+                            <th>PP</th>
+                            <th>OSS</th>
+                            <th>PORTA PP</th>
+                            <th>ALTA POST / OPP</th>
+                            <th>UR</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <th>PUNTAJE</th>
+                            <td>1</td>
+                            <td>3</td>
+                            <td>2</td>
+                            <td>2</td>
+                            <td>+0.5</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                );
+              })()}
             </>
           )}
 
@@ -161,9 +204,7 @@ export default function PuntosPage({
           font-size: 20px;
           font-weight: 600;
         }
-        .small {
-          font-size: 15px;
-        }
+        .small { font-size: 15px; }
         .error {
           color: #a94442;
           background: #f8d7da;
@@ -175,11 +216,7 @@ export default function PuntosPage({
           font-weight: 500;
           text-align: center;
         }
-        .grid {
-          display: grid;
-          gap: 12px;
-          justify-items: center;
-        }
+        .grid { display: grid; gap: 12px; justify-items: center; }
         .dni {
           font-size: 15px;
           background: #fff;
@@ -197,7 +234,43 @@ export default function PuntosPage({
           max-width: 640px;
         }
 
-        /* 🆕 Estilos del subtítulo */
+        .prizes {
+          margin: 14px auto 8px;
+          display: flex;
+          gap: 18px;
+          justify-content: center;
+          align-items: flex-start;
+          flex-wrap: wrap;
+          max-width: 640px;
+          width: 100%;
+        }
+        .prize {
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          padding: 10px 12px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          min-width: 160px;
+        }
+        .prizeImg {
+          border-radius: 12px;
+          object-fit: cover;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+          background: #fff;
+        }
+        .prizeCap {
+          margin-top: 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          line-height: 1.1;
+        }
+        .prizeCap b { color: #00509d; font-size: 13px; }
+        .prizeCap span { color: #334155; font-size: 12px; }
+
         .subheadWrap {
           margin: 14px auto 6px;
           max-width: 640px;
@@ -221,12 +294,9 @@ export default function PuntosPage({
           border: 1px solid #e5e7eb;
           border-radius: 10px;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+          -webkit-overflow-scrolling: touch;
         }
-        .table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 13px;
-        }
+        .table { width: 100%; border-collapse: collapse; font-size: 13px; }
         thead th {
           text-align: left;
           padding: 10px 12px;
@@ -235,10 +305,7 @@ export default function PuntosPage({
           font-weight: 700;
           white-space: nowrap;
         }
-        thead th:not(:first-child) {
-          text-align: center;
-          padding: 10px 8px;
-        }
+        thead th:not(:first-child) { text-align: center; padding: 10px 8px; }
         tbody th {
           text-align: left;
           padding: 10px 12px;
@@ -253,6 +320,7 @@ export default function PuntosPage({
           color: #0a58ca;
           font-weight: 700;
         }
+
         .back {
           position: fixed;
           top: 14px;
@@ -268,61 +336,52 @@ export default function PuntosPage({
           z-index: 1000;
           font-size: 15px;
         }
-        .back:hover {
-          background: #e9f1ff;
-          color: #084298;
-        }
-        .back:active {
-          transform: translateY(1px);
-        }
+        .back:hover { background: #e9f1ff; color: #084298; }
+        .back:active { transform: translateY(1px); }
 
-        /* ====== Ajustes responsive para móvil (alineado con ProgressBar) ====== */
         @media (max-width: 480px) {
-          .wrap {
-            padding: 8px 6px;
-          }
-          .panel {
-            padding: 14px 10px;
-            border-radius: 10px;
-            max-width: 100%;
-          }
-          .title {
-            font-size: 18px;
-            margin-bottom: 10px;
-          }
-          .dni {
-            font-size: 14px;
-            padding: 5px 10px;
-          }
-          .cards {
-            gap: 10px;
-          }
-          .error {
-            font-size: 14px;
-            padding: 8px 10px;
-          }
-          .tableWrap {
-            margin-top: 10px;
-            border-radius: 10px;
-          }
-          .subheadWrap {
-            margin: 12px auto 4px;
-            padding: 0 6px;
-          }
-          .subhead {
-            font-size: 14px;
-          }
+          .wrap { padding: 8px 6px; }
+          .panel { padding: 14px 10px; border-radius: 10px; max-width: 100%; }
+          .title { font-size: 18px; margin-bottom: 10px; }
+          .dni { font-size: 14px; padding: 5px 10px; }
+          .cards { gap: 10px; }
+
+          .prizes { gap: 12px; }
+          .prize { padding: 8px 10px; min-width: 140px; }
+          .prizeCap b { font-size: 12.5px; }
+          .prizeCap span { font-size: 11.5px; }
+
+          .error { font-size: 14px; padding: 8px 10px; }
+          .tableWrap { margin-top: 10px; border-radius: 10px; }
+          .subheadWrap { margin: 12px auto 4px; padding: 0 6px; }
+          .subhead { font-size: 14px; }
         }
       `}</style>
     </>
   );
 }
 
-/* --- Card --- */
-function Card({ title, value }: { title: string; value: number }) {
+/* --- Card con “achieved” --- */
+function Card({
+  title,
+  value,
+  achieved = false,
+}: {
+  title: string;
+  value: number;
+  achieved?: boolean;
+}) {
   return (
     <>
-      <div className="card">
+      <div
+        className={`card ${achieved ? "achieved" : ""}`}
+        aria-live="polite"
+        aria-label={
+          achieved
+            ? `${title}. Meta alcanzada.`
+            : `${title}. Meta: ${value} puntos.`
+        }
+      >
         <div className="cardTitle">{title}</div>
         <div className="cardValue">{value}</div>
       </div>
@@ -338,6 +397,12 @@ function Card({ title, value }: { title: string; value: number }) {
           flex-direction: column;
           align-items: center;
           min-height: 128px;
+          transition: background-color .2s ease, border-color .2s ease;
+        }
+        /* 🎨 estado “alcanzado” en naranja tenue */
+        .card.achieved {
+          background: #d3fcf9ff;       /* naranja muy suave */
+          border-color: #94e4f2ff;     /* naranja tenue (tailwind amber-300 aprox) */
         }
         .cardTitle {
           font-size: 15px;
@@ -358,17 +423,9 @@ function Card({ title, value }: { title: string; value: number }) {
           margin-top: 4px;
         }
         @media (max-width: 480px) {
-          .card {
-            padding: 12px 10px;
-            min-height: 116px;
-          }
-          .cardTitle {
-            font-size: 14px;
-            min-height: 34px;
-          }
-          .cardValue {
-            font-size: 24px;
-          }
+          .card { padding: 12px 10px; min-height: 116px; }
+          .cardTitle { font-size: 14px; min-height: 34px; }
+          .cardValue { font-size: 24px; }
         }
       `}</style>
     </>
