@@ -1,22 +1,39 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import ProgressBar from "./ProgressBar";
 
-type Res =
-  | {
-      dni: string;
-      canasta: number; // meta 1er premio
-      pavo: number;    // meta 2do premio
-      puntos?: number; // avance actual
-      pv?: string;
-    }
-  | { detail: string };
+type AvanceOk = {
+  dni: string;
+  nombre: string;
+  dia: string; // YYYY-MM-DD (D-1)
+  pp_total: number;
+  pp_vr: number;
+  porta_pp: number;
+  ss_total: number;
+  ss_vr: number;
+  opp: number;
+  oss: number;
+  updated_at?: string;
+};
+
+type Res = AvanceOk | { detail: string };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
 
-export default function PuntosPage({
+// 🔧 Ajusta aquí las cuotas de la campaña (si luego quieres que vengan de BD, se cambia)
+const OBJ = {
+  enero: { pp: 50, ss: 2 },
+  febrero: { pp: 48, ss: 1 },
+};
+
+function fmtDateDDMMYYYY(iso: string) {
+  // "2026-01-05" -> "05/01/2026"
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+export default function AvancePage({
   searchParams,
 }: {
   searchParams: { dni?: string };
@@ -33,9 +50,10 @@ export default function PuntosPage({
       setLoading(false);
       return;
     }
+
     const run = async () => {
       try {
-        const r = await fetch(`${API_BASE}/premios/${dni}`, { cache: "no-store" });
+        const r = await fetch(`${API_BASE}/avance/${dni}`, { cache: "no-store" });
 
         if (r.status === 404) {
           setErr("No se encontró el número de documento ingresado.");
@@ -52,127 +70,145 @@ export default function PuntosPage({
         setLoading(false);
       }
     };
+
     run();
   }, [dni]);
 
+  // Total de cuotas (enero + febrero) como en tu maqueta (no se reinicia)
+  const totals = useMemo(() => {
+    return {
+      pp: OBJ.enero.pp + OBJ.febrero.pp,
+      ss: OBJ.enero.ss + OBJ.febrero.ss,
+    };
+  }, []);
+
   return (
     <>
-      {/* Botón fijo arriba-izquierda */}
-      <button
-        className="back"
-        onClick={() => router.push("/")}
-        aria-label="Volver a la pantalla anterior"
-      >
+      <button className="back" onClick={() => router.push("/")} aria-label="Volver">
         ← Atrás
       </button>
 
       <main className="wrap">
         <div className="panel">
-          <h2 className="title">🎁 Hola, revisa tus puntos</h2>
-
           {loading && <div className="small">Cargando…</div>}
           {err && <div className="error">❌ {err}</div>}
 
           {!loading && !err && data && "dni" in data && (
             <>
-              {(() => {
-                const puntos = (data as any).puntos ?? 0;
-                const alcanzadoCan = puntos >= data.canasta;
-                const alcanzadoPavo = puntos >= data.pavo;
+              {/* Saludo */}
+              <div className="helloRow">
+                <span className="gift" aria-hidden="true">🎁</span>
+                <div className="hello">
+                  Hola <i>{data.nombre}</i>, ¿listo para ganar?
+                </div>
+              </div>
 
-                return (
-                  <>
-                    <div className="grid">
-                      <div className="dni">
-                        <b>DNI:</b> {data.dni}
-                      </div>
-
-                      <div className="cards">
-                        <Card
-                          title="Puntos para ganar la Canasta Navideña"
-                          value={data.canasta}
-                          achieved={alcanzadoCan}
-                        />
-                        <Card
-                          title="Puntos para ganar el Vale de Pavo"
-                          value={data.pavo}
-                          achieved={alcanzadoPavo}
-                        />
-                      </div>
+              {/* Objetivos Enero / Febrero */}
+              <section className="block">
+                <div className="objGrid">
+                  <div className="month">
+                    <div className="monthName">ENERO:</div>
+                    <div className="kv">
+                      <span>Objetivo PP</span>
+                      <span className="boxNum">{OBJ.enero.pp}</span>
                     </div>
-
-                    {/* Barra de progreso */}
-                    <ProgressBar
-                      puntos={puntos}
-                      metaCanasta={data.canasta}
-                      metaPavo={data.pavo}
-                    />
-
-                    {/* Faja neutral de premios */}
-                    <section className="prizes" aria-label="Premios de referencia">
-                      <div className="prize">
-                        <Image
-                          src="/canasta.jpg"
-                          alt="Canasta Navideña"
-                          width={88}
-                          height={88}
-                          className="prizeImg"
-                          priority
-                        />
-                        <div className="prizeCap">
-                          <b>Canasta</b>
-                          <span>S/50–S/100</span>
-                        </div>
-                      </div>
-                      <div className="prize">
-                        <Image
-                          src="/pavo.png"
-                          alt="Vale de pavo 6 kg"
-                          width={92}
-                          height={92}
-                          className="prizeImg"
-                          priority
-                        />
-                        <div className="prizeCap">
-                          <b>Pavo 6 kg</b>
-                          <span>S/100</span>
-                        </div>
-                      </div>
-                    </section>
-
-                    {/* Subtítulo tabla */}
-                    <div className="subheadWrap">
-                      <div className="subhead">Tabla de puntajes:</div>
+                    <div className="kv">
+                      <span>Objetivo SS</span>
+                      <span className="boxNum">{OBJ.enero.ss}</span>
                     </div>
+                  </div>
 
-                    {/* Tabla */}
-                    <div className="tableWrap" aria-label="Tabla de puntaje por producto">
-                      <table className="table">
-                        <thead>
-                          <tr>
-                            <th>PRODUCTO</th>
-                            <th>PP</th>
-                            <th>OSS</th>
-                            <th>PORTA PP</th>
-                            <th>ALTA POST / OPP</th>
-                            <th>UR</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <th>PUNTAJE</th>
-                            <td>1</td>
-                            <td>3</td>
-                            <td>2</td>
-                            <td>2</td>
-                            <td>+0.5</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                  <div className="month">
+                    <div className="monthName">FEBRERO:</div>
+                    <div className="kv">
+                      <span>Objetivo PP</span>
+                      <span className="boxNum">{OBJ.febrero.pp}</span>
                     </div>
-                  </>
-                );
-              })()}
+                    <div className="kv">
+                      <span>Objetivo SS</span>
+                      <span className="boxNum">{OBJ.febrero.ss}</span>
+                    </div>
+                  </div>
+
+                  <div className="month totals">
+                    <div className="monthName">TOTAL:</div>
+                    <div className="kv">
+                      <span>Total PP</span>
+                      <span className="boxNum">{totals.pp}</span>
+                    </div>
+                    <div className="kv">
+                      <span>Total SS</span>
+                      <span className="boxNum">{totals.ss}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="notes">
+                  *Participan PP (VR o PORTA) <br />
+                  *Participan SS (VR, OPP, OSS)
+                </div>
+              </section>
+
+              {/* Avance al D-1 */}
+              <section className="block">
+                <div className="avanceHead">
+                  <span className="clock" aria-hidden="true">⏱️</span>
+                  <div className="avanceTitle">
+                    Avance al {fmtDateDDMMYYYY(data.dia)}:
+                  </div>
+                </div>
+
+                <div className="avanceGrid">
+                  <div className="col">
+                    <div className="kv2">
+                      <span className="k">PP TOTAL:</span>
+                      <span className="boxNum">{data.pp_total}</span>
+                    </div>
+                    <div className="kv2">
+                      <span className="k">VR PP:</span>
+                      <span className="boxNum">{data.pp_vr}</span>
+                    </div>
+                    <div className="kv2">
+                      <span className="k">Porta PP:</span>
+                      <span className="boxNum">{data.porta_pp}</span>
+                    </div>
+                  </div>
+
+                  <div className="col">
+                    <div className="kv2">
+                      <span className="k">SS TOTAL:</span>
+                      <span className="boxNum">{data.ss_total}</span>
+                    </div>
+                    <div className="kv2">
+                      <span className="k">VR SS:</span>
+                      <span className="boxNum">{data.ss_vr}</span>
+                    </div>
+                    <div className="kv2">
+                      <span className="k">OPP:</span>
+                      <span className="boxNum">{data.opp}</span>
+                    </div>
+                    <div className="kv2">
+                      <span className="k">OSS:</span>
+                      <span className="boxNum">{data.oss}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="reminder">
+                  *Recuerda: ¡Mientras más sobrecumplas tu objetivo, más chances de ganar!
+                </div>
+              </section>
+
+              {/* Laptop */}
+              <div className="laptopWrap">
+                <Image
+                  src="/laptop.png"
+                  alt="Premio laptop"
+                  width={260}
+                  height={180}
+                  priority
+                />
+              </div>
             </>
           )}
 
@@ -190,21 +226,15 @@ export default function PuntosPage({
           margin-top: 0;
         }
         .panel {
-          background: #f8f9fa;
+          background: #fff;
           border-radius: 12px;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
-          padding: 20px 16px;
+          padding: 10px 8px 18px;
           max-width: 720px;
           width: 100%;
-          text-align: center;
+          text-align: left;
         }
-        .title {
-          color: #0a58ca;
-          margin: 0 0 12px;
-          font-size: 20px;
-          font-weight: 600;
-        }
-        .small { font-size: 15px; }
+
+        .small { font-size: 15px; text-align: center; }
         .error {
           color: #a94442;
           background: #f8d7da;
@@ -217,125 +247,109 @@ export default function PuntosPage({
           text-align: center;
         }
 
-        /* === Contenedor cabecera === */
-        .grid {
-          display: grid;
-          gap: 12px;
-          justify-items: center;    /* centra horizontalmente los hijos */
-          align-content: start;
-          width: 100%;
-        }
-
-        /* === Pill DNI centrado === */
-        .dni {
-          font-size: 15px;
-          background: #fff;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          padding: 6px 12px;
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-          width: max-content;
-          display: inline-flex;
+        .helloRow {
+          display: flex;
           align-items: center;
-          margin: 0 auto;           /* asegura centrado */
-        }
-
-        /* === Cards: centradas; 2 col en desktop === */
-        .cards {
-          display: grid;
-          gap: 14px;
-          width: 100%;
-          max-width: 640px;
-          margin: 0 auto;
-          grid-template-columns: repeat(2, minmax(240px, 1fr));
-          justify-content: center;
-        }
-
-        .prizes {
-          margin: 14px auto 8px;
-          display: flex;
-          gap: 18px;
-          justify-content: center;
-          align-items: flex-start;
-          flex-wrap: wrap;
-          max-width: 640px;
-          width: 100%;
-        }
-        .prize {
-          background: #fff;
-          border: 1px solid #e5e7eb;
-          border-radius: 12px;
-          padding: 10px 12px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          min-width: 160px;
-        }
-        .prizeImg {
-          border-radius: 12px;
-          object-fit: cover;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-          background: #fff;
-        }
-        .prizeCap {
-          margin-top: 8px;
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-          line-height: 1.1;
-        }
-        .prizeCap b { color: #00509d; font-size: 13px; }
-        .prizeCap span { color: #334155; font-size: 12px; }
-
-        .subheadWrap {
-          margin: 14px auto 6px;
-          max-width: 640px;
-          width: 100%;
-        }
-        .subhead {
-          text-align: left;
-          font-size: 15px;
-          font-weight: 700;
-          color: #1f2937;
-        }
-
-        .tableWrap {
-          margin-top: 8px;
-          margin-left: auto;
-          margin-right: auto;
-          max-width: 640px;
-          width: 100%;
-          overflow-x: auto;
-          background: #fff;
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-          -webkit-overflow-scrolling: touch;
-        }
-        .table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        thead th {
-          text-align: left;
-          padding: 10px 12px;
-          background: #f3f4f6;
-          border-bottom: 1px solid #e5e7eb;
-          font-weight: 700;
-          white-space: nowrap;
-        }
-        thead th:not(:first-child) { text-align: center; padding: 10px 8px; }
-        tbody th {
-          text-align: left;
-          padding: 10px 12px;
-          border-top: 1px solid #e5e7eb;
-          font-weight: 600;
-          background: #fafafa;
-        }
-        tbody td {
-          text-align: center;
-          padding: 10px 8px;
-          border-top: 1px solid #e5e7eb;
+          gap: 10px;
+          margin: 6px 0 10px;
           color: #0a58ca;
-          font-weight: 700;
+          font-weight: 800;
+        }
+        .gift { font-size: 18px; }
+        .hello { font-size: 15px; }
+        .hello i { font-style: italic; }
+
+        .block {
+          margin-top: 10px;
+          padding: 10px 8px;
+        }
+
+        .objGrid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 10px;
+          align-items: start;
+        }
+
+        .monthName {
+          font-weight: 900;
+          font-size: 13px;
+          margin-bottom: 6px;
+          color: #111;
+        }
+
+        .kv {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+          font-size: 13px;
+          margin: 6px 0;
+        }
+
+        .totals .monthName {
+          color: #111;
+        }
+
+        .boxNum {
+          min-width: 44px;
+          text-align: center;
+          border: 1px solid #111;
+          padding: 2px 6px;
+          font-weight: 800;
+          background: #fff;
+        }
+
+        .notes {
+          margin-top: 8px;
+          font-size: 12px;
+          color: #333;
+          font-style: italic;
+          line-height: 1.25;
+        }
+
+        .avanceHead {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin: 6px 0 8px;
+          font-weight: 900;
+          color: #111;
+        }
+        .clock { font-size: 16px; }
+        .avanceTitle { font-size: 13px; }
+
+        .avanceGrid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 18px;
+          margin-top: 8px;
+        }
+
+        .kv2 {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+          font-size: 13px;
+          margin: 6px 0;
+        }
+
+        .k {
+          font-weight: 900;
+        }
+
+        .reminder {
+          margin-top: 10px;
+          font-size: 12px;
+          color: #111;
+          font-style: italic;
+        }
+
+        .laptopWrap {
+          display: flex;
+          justify-content: center;
+          margin-top: 14px;
         }
 
         .back {
@@ -356,94 +370,14 @@ export default function PuntosPage({
         .back:hover { background: #e9f1ff; color: #084298; }
         .back:active { transform: translateY(1px); }
 
-        /* === Responsive === */
-        @media (max-width: 640px) {
-          .cards { grid-template-columns: 1fr; gap: 12px; }
-        }
-        @media (max-width: 480px) {
-          .wrap { padding: 8px 6px; }
-          .panel { padding: 14px 10px; border-radius: 10px; max-width: 100%; }
-          .title { font-size: 18px; margin-bottom: 10px; }
-          .dni { font-size: 14px; padding: 5px 10px; }
-          .prizes { gap: 12px; }
-          .prize { padding: 8px 10px; min-width: 140px; }
-          .prizeCap b { font-size: 12.5px; }
-          .prizeCap span { font-size: 11.5px; }
-          .error { font-size: 14px; padding: 8px 10px; }
-          .tableWrap { margin-top: 10px; border-radius: 10px; }
-          .subheadWrap { margin: 12px auto 4px; padding: 0 6px; }
-          .subhead { font-size: 14px; }
-        }
-      `}</style>
-    </>
-  );
-}
-
-/* --- Card con “achieved” --- */
-function Card({
-  title,
-  value,
-  achieved = false,
-}: {
-  title: string;
-  value: number;
-  achieved?: boolean;
-}) {
-  return (
-    <>
-      <div
-        className={`card ${achieved ? "achieved" : ""}`}
-        aria-live="polite"
-        aria-label={
-          achieved
-            ? `${title}. Meta alcanzada.`
-            : `${title}. Meta: ${value} puntos.`
-        }
-      >
-        <div className="cardTitle">{title}</div>
-        <div className="cardValue">{value}</div>
-      </div>
-
-      <style jsx>{`
-        .card {
-          background: #fff;
-          border: 1px solid #ddd;
-          border-radius: 10px;
-          padding: 14px 12px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          min-height: 128px;
-          transition: background-color .2s ease, border-color .2s ease;
-        }
-        /* 🎨 “alcanzado” en naranja tenue */
-        .card.achieved {
-          background: #fff7ed;    /* naranja muy suave */
-          border-color: #fdba74;  /* naranja tenue */
-        }
-        .cardTitle {
-          font-size: 15px;
-          color: #444;
-          text-align: center;
-          line-height: 1.25;
-          min-height: 38px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 6px;
-          padding: 0 6px;
-        }
-        .cardValue {
-          font-size: 26px;
-          color: #0a58ca;
-          font-weight: 700;
-          margin-top: 4px;
-        }
-        @media (max-width: 480px) {
-          .card { padding: 12px 10px; min-height: 116px; }
-          .cardTitle { font-size: 14px; min-height: 34px; }
-          .cardValue { font-size: 24px; }
+        @media (max-width: 720px) {
+          .objGrid {
+            grid-template-columns: 1fr;
+          }
+          .avanceGrid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+          }
         }
       `}</style>
     </>

@@ -7,113 +7,138 @@ export default function Home() {
   const [err, setErr] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleaned = dni.trim();
     if (!/^\d{6,12}$/.test(cleaned)) {
       setErr("Ingresa un DNI válido.");
       return;
     }
+    setErr(null);
     router.push(`/puntos?dni=${cleaned}`);
   };
 
   return (
     <main className="wrap">
-      <div className="hero">
-        <div className="inner">
-          <h1 className="title">Del 01 de nov al 21 de dic</h1>
-          <h2 className="subtitle">🧭 Averigua aquí tus puntos:</h2>
-
-          <form onSubmit={handleSubmit} className="form">
-            <label className="label">
-              N° documento:
-              <input
-                className="input"
-                value={dni}
-                onChange={(e) => setDni(e.target.value)}
-                placeholder="Ingresa tu DNI"
-                inputMode="numeric"
-                pattern="\d*"
-              />
-            </label>
-
-            {err && <div className="err">{err}</div>}
-
-            <button type="submit" className="btn">
-              Consultar
-            </button>
-
-            <div className="note">
-              *Si eres PDV/PDV Plus, ingresar documento del líder.
-              <br />
-              *Si eres Multimarca/HC EMO, ingresar documento del login.
-            </div>
-          </form>
-        </div>
+      {/* Rango de campaña */}
+      <div className="dateRow">
+        <span className="icon">🗓️</span>
+        <span className="dateText">
+          Del <b>01</b> de ene al <b>28</b> de feb
+        </span>
       </div>
+
+      {/* Buscador */}
+      <section className="box">
+        <div className="titleRow">
+          <span className="iconBell">🔔</span>
+          <div className="title">Averigua aquí tu objetivo PP y SS</div>
+        </div>
+
+        <form onSubmit={onSubmit} className="form">
+          <label className="labelRow">
+            <span className="labelText">N°documento:</span>
+            <input
+              className="input"
+              value={dni}
+              onChange={(e) => setDni(e.target.value)}
+              inputMode="numeric"
+              pattern="\d*"
+              placeholder="Ej: 666666"
+            />
+          </label>
+
+          {err && <div className="err">{err}</div>}
+
+          <button type="submit" className="btn">
+            Consultar
+          </button>
+        </form>
+
+        <div className="hint">*Ingresar documento del líder</div>
+      </section>
 
       <style jsx>{`
         .wrap {
           display: flex;
-          justify-content: center;
-          padding: 16px;
-          margin-top: 0;
-        }
-
-        .hero {
-          width: 100%;
-          max-width: 880px;
-          background: #fff;
-          border-radius: 12px;
-          padding: 24px 16px;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-          overflow: hidden; /* 👈 evita que algo se desborde */
-        }
-
-        .inner {
-          max-width: 520px;
-          margin: 0 auto;
+          flex-direction: column;
+          align-items: center;
+          padding-top: 10px;
           text-align: center;
         }
 
-        .title {
+        .dateRow {
+          margin-top: 4px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 12px;
           color: #0a58ca;
-          margin: 0 0 6px;
+          font-weight: 900;
           font-size: 20px;
-          font-weight: 700;
         }
 
-        .subtitle {
-          margin: 0 0 8px;
-          font-size: 16px;
-          font-weight: 600;
+        .icon {
+          font-size: 20px;
+          line-height: 1;
+        }
+
+        .box {
+          width: 100%;
+          max-width: 820px;
+          margin: 52px auto 0;
+        }
+
+        /* ✅ CENTRADO REAL del título con ícono */
+        .titleRow {
+          display: flex;
+          justify-content: center; /* 👈 clave */
+          align-items: center;
+          gap: 12px;
+          color: #0a58ca;
+          font-weight: 900;
+          font-size: 18px;
+          margin-bottom: 18px;
+        }
+
+        .iconBell {
+          font-size: 18px;
+          line-height: 1;
+          transform: translateY(1px);
+        }
+
+        .title {
+          transform: translateY(1px);
         }
 
         .form {
           display: grid;
-          gap: 12px;
-          justify-items: center;
-          margin-top: 8px;
+          justify-items: center; /* ✅ centra hijos del form (botón, error, etc.) */
+          gap: 14px;
         }
 
-        .label {
-          width: 100%;
-          text-align: left;
+        /* ✅ Label en una sola línea (como el mock) y centrado */
+        .labelRow {
+          display: flex;
+          align-items: center;
+          justify-content: center; /* 👈 centra el conjunto */
+          gap: 10px;
+          font-size: 16px;
+          color: #000;
+        }
+
+        .labelText {
+          white-space: nowrap;
           font-size: 14px;
         }
 
         .input {
-          width: 100%;
-          display: block; /* 👈 asegura comportamiento consistente */
-          max-width: 100%;
-          padding: 12px;
-          font-size: 16px; /* 👈 evita zoom en iOS */
-          border-radius: 10px;
-          border: 1px solid #ccc;
-          margin-top: 4px;
+          width: 340px;
+          padding: 8px 10px;
+          border: 1px solid #000;
+          border-radius: 0;
+          font-size: 16px;
           outline: none;
-          box-sizing: border-box; /* 👈 corrige el desfase del borde */
-          WebkitAppearance: none; /* 👈 limpia estilo iOS */
         }
 
         .input:focus {
@@ -121,64 +146,56 @@ export default function Home() {
           box-shadow: 0 0 0 3px rgba(10, 88, 202, 0.12);
         }
 
-        .err {
-          color: crimson;
-          font-size: 13px;
-        }
-
         .btn {
+          width: 170px;
+          height: 40px;
           background: #0a58ca;
           color: #fff;
           border: none;
-          border-radius: 8px;
-          height: 40px;
-          padding: 0 16px;
-          width: 160px;
+          border-radius: 6px;
+          font-size: 15px;
+          font-weight: 800;
           cursor: pointer;
-          font-weight: 700;
-          transition: transform 0.06s ease, filter 0.12s ease;
+          justify-self: center; /* ✅ por si acaso */
         }
 
         .btn:hover {
-          filter: brightness(1.06);
+          filter: brightness(1.05);
         }
 
-        .btn:active {
-          transform: translateY(1px);
+        .err {
+          color: crimson;
+          font-size: 13px;
+          justify-self: center;
         }
 
-        .note {
-          font-size: 12px;
-          color: #555;
-          margin-top: 6px;
-          text-align: left;
+        /* ✅ Hint centrado exactamente debajo */
+        .hint {
+          margin-top: 18px;
+          font-size: 13px;
+          color: #444;
+          font-style: italic;
+          text-align: center;
         }
 
-        /* Mobile tweaks */
         @media (max-width: 480px) {
-          .hero {
-            padding: 16px 12px;
-            border-radius: 10px;
+          .dateRow {
+            font-size: 16px;
           }
 
-          .title {
-            font-size: 18px;
-            margin-bottom: 4px;
+          .titleRow {
+            font-size: 16px;
           }
 
-          .subtitle {
-            font-size: 15px;
-            margin-bottom: 10px;
-          }
-
-          .btn {
-            width: 140px;
-            height: 38px;
+          .labelRow {
+            flex-direction: column; /* en celular, label arriba y input abajo */
+            align-items: center;
+            gap: 8px;
           }
 
           .input {
-            padding: 10px;
-            font-size: 16px;
+            width: 78vw;
+            max-width: 360px;
           }
         }
       `}</style>
