@@ -31,7 +31,7 @@ export default function FlyerButton() {
       )}
 
       <style jsx>{`
-        /* === BOTÓN === */
+        /* === BOTÓN (desktop) === */
         .flyerBtn {
           position: fixed;
           top: 14px;
@@ -47,19 +47,20 @@ export default function FlyerButton() {
           font-size: 14px;
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
-
         .flyerBtn:hover {
           filter: brightness(1.05);
         }
 
-        /* ✅ FIX MOBILE: lo bajamos para que no tape el logo */
+        /* ✅ FIX MOBILE: abajo centrado (nunca tapa el logo) */
         @media (max-width: 520px) {
           .flyerBtn {
-            top: 92px;        /* ← ajustado para el logo Club Power */
-            right: 12px;
-            padding: 7px 12px;
-            font-size: 13px;
-            border-radius: 10px;
+            top: auto;
+            right: 50%;
+            bottom: 16px;
+            transform: translateX(50%);
+            padding: 10px 16px;
+            font-size: 14px;
+            border-radius: 12px;
           }
         }
 
