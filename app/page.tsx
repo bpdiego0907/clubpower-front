@@ -44,7 +44,7 @@ export default function Home() {
               onChange={(e) => setDni(e.target.value)}
               inputMode="numeric"
               pattern="\d*"
-              placeholder="Ej: 666666"
+              placeholder="Ej: 99999999"
             />
           </label>
 

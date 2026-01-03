@@ -14,6 +14,12 @@ type AvanceOk = {
   ss_vr: number;
   opp: number;
   oss: number;
+
+  meta_ene_pp: number;
+  meta_ene_ss: number;
+  meta_feb_pp: number;
+  meta_feb_ss: number;
+
   updated_at?: string;
 };
 
@@ -21,14 +27,7 @@ type Res = AvanceOk | { detail: string };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
 
-// 🔧 Ajusta aquí las cuotas de la campaña (si luego quieres que vengan de BD, se cambia)
-const OBJ = {
-  enero: { pp: 50, ss: 2 },
-  febrero: { pp: 48, ss: 1 },
-};
-
 function fmtDateDDMMYYYY(iso: string) {
-  // "2026-01-05" -> "05/01/2026"
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 }
@@ -64,7 +63,7 @@ export default function AvancePage({
 
         const j = (await r.json()) as Res;
         setData(j);
-      } catch (e: any) {
+      } catch {
         setErr("Hubo un problema al consultar la información. Inténtalo nuevamente.");
       } finally {
         setLoading(false);
@@ -74,13 +73,13 @@ export default function AvancePage({
     run();
   }, [dni]);
 
-  // Total de cuotas (enero + febrero) como en tu maqueta (no se reinicia)
   const totals = useMemo(() => {
+    if (!data || "detail" in data) return null;
     return {
-      pp: OBJ.enero.pp + OBJ.febrero.pp,
-      ss: OBJ.enero.ss + OBJ.febrero.ss,
+      pp: data.meta_ene_pp + data.meta_feb_pp,
+      ss: data.meta_ene_ss + data.meta_feb_ss,
     };
-  }, []);
+  }, [data]);
 
   return (
     <>
@@ -93,28 +92,28 @@ export default function AvancePage({
           {loading && <div className="small">Cargando…</div>}
           {err && <div className="error">❌ {err}</div>}
 
-          {!loading && !err && data && "dni" in data && (
+          {!loading && !err && data && "dni" in data && totals && (
             <>
               {/* Saludo */}
               <div className="helloRow">
-                <span className="gift" aria-hidden="true">🎁</span>
+                <span className="gift">🎁</span>
                 <div className="hello">
                   Hola <i>{data.nombre}</i>, ¿listo para ganar?
                 </div>
               </div>
 
-              {/* Objetivos Enero / Febrero */}
+              {/* Objetivos */}
               <section className="block">
                 <div className="objGrid">
                   <div className="month">
                     <div className="monthName">ENERO:</div>
                     <div className="kv">
                       <span>Objetivo PP</span>
-                      <span className="boxNum">{OBJ.enero.pp}</span>
+                      <span className="boxNum">{data.meta_ene_pp}</span>
                     </div>
                     <div className="kv">
                       <span>Objetivo SS</span>
-                      <span className="boxNum">{OBJ.enero.ss}</span>
+                      <span className="boxNum">{data.meta_ene_ss}</span>
                     </div>
                   </div>
 
@@ -122,11 +121,11 @@ export default function AvancePage({
                     <div className="monthName">FEBRERO:</div>
                     <div className="kv">
                       <span>Objetivo PP</span>
-                      <span className="boxNum">{OBJ.febrero.pp}</span>
+                      <span className="boxNum">{data.meta_feb_pp}</span>
                     </div>
                     <div className="kv">
                       <span>Objetivo SS</span>
-                      <span className="boxNum">{OBJ.febrero.ss}</span>
+                      <span className="boxNum">{data.meta_feb_ss}</span>
                     </div>
                   </div>
 
@@ -149,10 +148,10 @@ export default function AvancePage({
                 </div>
               </section>
 
-              {/* Avance al D-1 */}
+              {/* Avance */}
               <section className="block">
                 <div className="avanceHead">
-                  <span className="clock" aria-hidden="true">⏱️</span>
+                  <span className="clock">⏱️</span>
                   <div className="avanceTitle">
                     Avance al {fmtDateDDMMYYYY(data.dia)}:
                   </div>
@@ -199,21 +198,10 @@ export default function AvancePage({
                 </div>
               </section>
 
-              {/* Laptop */}
               <div className="laptopWrap">
-                <Image
-                  src="/laptop.png"
-                  alt="Premio laptop"
-                  width={260}
-                  height={180}
-                  priority
-                />
+                <Image src="/laptop.png" alt="Premio laptop" width={260} height={180} priority />
               </div>
             </>
-          )}
-
-          {!loading && !err && data && "detail" in data && (
-            <div className="small">{(data as any).detail}</div>
           )}
         </div>
       </main>
