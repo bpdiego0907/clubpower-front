@@ -57,7 +57,7 @@ export default function AdminUpload() {
       <p style={{ marginTop: 16, fontSize: 12, color: "#555" }}>
         Columnas esperadas:
         <br />
-        dni,nombre,dia,pp_total,pp_vr,porta_pp,ss_total,ss_vr,opp,oss,meta_ene_pp,meta_ene_ss,meta_feb_pp,meta_feb_ss
+        dni,nombre,dia,pp_total,pp_vr,porta_pp,ss_total,ss_vr,opp,oss,meta_mar_pp,meta_mar_ss,meta_abr_pp,meta_abr_ss
       </p>
     </main>
   );

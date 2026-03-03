@@ -15,10 +15,10 @@ type AvanceOk = {
   opp: number;
   oss: number;
 
-  meta_ene_pp: number;
-  meta_ene_ss: number;
-  meta_feb_pp: number;
-  meta_feb_ss: number;
+  meta_mar_pp: number;
+  meta_mar_ss: number;
+  meta_abr_pp: number;
+  meta_abr_ss: number;
 
   updated_at?: string;
 };
@@ -76,8 +76,8 @@ export default function AvancePage({
   const totals = useMemo(() => {
     if (!data || "detail" in data) return null;
     return {
-      pp: data.meta_ene_pp + data.meta_feb_pp,
-      ss: data.meta_ene_ss + data.meta_feb_ss,
+      pp: data.meta_mar_pp + data.meta_abr_pp,
+      ss: data.meta_mar_ss + data.meta_abr_ss,
     };
   }, [data]);
 
@@ -109,11 +109,11 @@ export default function AvancePage({
                     <div className="monthName">MARZO:</div>
                     <div className="kv">
                       <span>Objetivo PP</span>
-                      <span className="boxNum">{data.meta_ene_pp}</span>
+                      <span className="boxNum">{data.meta_mar_pp}</span>
                     </div>
                     <div className="kv">
                       <span>Objetivo SS</span>
-                      <span className="boxNum">{data.meta_ene_ss}</span>
+                      <span className="boxNum">{data.meta_mar_ss}</span>
                     </div>
                   </div>
 
@@ -121,11 +121,11 @@ export default function AvancePage({
                     <div className="monthName">ABRIL:</div>
                     <div className="kv">
                       <span>Objetivo PP</span>
-                      <span className="boxNum">{data.meta_feb_pp}</span>
+                      <span className="boxNum">{data.meta_abr_pp}</span>
                     </div>
                     <div className="kv">
                       <span>Objetivo SS</span>
-                      <span className="boxNum">{data.meta_feb_ss}</span>
+                      <span className="boxNum">{data.meta_abr_ss}</span>
                     </div>
                   </div>
 
