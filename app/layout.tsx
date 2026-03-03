@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         >
           <img
-            src="/logo.jpeg"
+            src="/logo.png"
             alt="Logo Club Power"
             style={{
               width: 420,
