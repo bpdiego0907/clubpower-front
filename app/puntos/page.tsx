@@ -98,7 +98,7 @@ export default function AvancePage({
               <div className="helloRow">
                 <span className="gift">🎁</span>
                 <div className="hello">
-                  Hola <i>{data.nombre}</i>, ¿listo para ganar?
+                  Hola <i>{data.nombre}</i>, ¿list@ para ganar?
                 </div>
               </div>
 
@@ -106,7 +106,7 @@ export default function AvancePage({
               <section className="block">
                 <div className="objGrid">
                   <div className="month">
-                    <div className="monthName">ENERO:</div>
+                    <div className="monthName">MARZO:</div>
                     <div className="kv">
                       <span>Objetivo PP</span>
                       <span className="boxNum">{data.meta_ene_pp}</span>
@@ -118,7 +118,7 @@ export default function AvancePage({
                   </div>
 
                   <div className="month">
-                    <div className="monthName">FEBRERO:</div>
+                    <div className="monthName">ABRIL:</div>
                     <div className="kv">
                       <span>Objetivo PP</span>
                       <span className="boxNum">{data.meta_feb_pp}</span>
@@ -198,8 +198,8 @@ export default function AvancePage({
                 </div>
               </section>
 
-              <div className="laptopWrap">
-                <Image src="/laptop.png" alt="Premio laptop" width={260} height={180} priority />
+              <div className="tvWrap">
+                <Image src="/tv.png" alt="Premio tv" width={260} height={180} priority />
               </div>
             </>
           )}
@@ -334,7 +334,7 @@ export default function AvancePage({
           font-style: italic;
         }
 
-        .laptopWrap {
+        .tvWrap {
           display: flex;
           justify-content: center;
           margin-top: 14px;

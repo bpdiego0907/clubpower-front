@@ -24,7 +24,7 @@ export default function Home() {
       <div className="dateRow">
         <span className="icon">🗓️</span>
         <span className="dateText">
-          Del <b>01</b> de ene al <b>28</b> de feb
+          Del <b>01</b> de marzo al <b>30</b> de abril
         </span>
       </div>
 

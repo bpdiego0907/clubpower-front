@@ -19,7 +19,7 @@ export default function FlyerButton() {
             </button>
 
             <Image
-              src="/flyer.jpeg"
+              src="/flyer.png"
               alt="Flyer Club Power"
               width={900}
               height={1200}
